@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this model or its findings, please cite it as below."
+title: "cooling-pue-ladder: the cooling ladder for AI density"
+authors:
+  - family-names: Nanyonga
+    given-names: Margaret
+type: software
+license: MIT
+repository-code: "https://github.com/dimaggi-ai/cooling-pue-ladder"
+version: 1.0.0
+date-released: "2026-08-31"

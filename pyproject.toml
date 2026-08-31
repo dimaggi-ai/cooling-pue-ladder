@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cooling-pue-ladder"
+version = "1.0.0"
+description = "The cooling ladder for AI density: rungs, PUE, freed megawatts, ride-through — CI-gateable."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Margaret Nanyonga"}]
+keywords = ["datacenter", "cooling", "PUE", "liquid-cooling", "ai-infrastructure"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Topic :: System :: Systems Administration",
+]
+
+[project.urls]
+Homepage = "https://github.com/dimaggi-ai/cooling-pue-ladder"
+
+[project.scripts]
+pue-ladder = "cooling.cli:main"
+
+[tool.setuptools]
+packages = ["cooling"]
