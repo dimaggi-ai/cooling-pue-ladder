@@ -32,6 +32,12 @@ def _new_build_rung(year: int):
         return RUNGS[2]           # rear-door era
     return RUNGS[3]               # direct-to-chip era
 
+# The simulation's CALIBRATED initial condition: the rung mix the 2014
+# stock is drawn from, chosen to land near the 2014 survey average [2].
+# Hoisted so tests can replace it — a fleet that starts modern must make
+# the 2014 calibrated point fail, or that point is not pinning anything.
+INITIAL_STOCK_RUNGS = (0, 0, 1)
+
 GROWTH_RATE = 0.15               # fleet capacity CAGR — planning assumption
 RETIRE_RATE = 0.02               # legacy capacity retired per year
 NEW_SITE_MW = 20.0               # new builds are big (few sites, much energy)
@@ -65,7 +71,7 @@ def simulate(start_year: int = 2014, end_year: int = 2024,
     retires capacity.
     """
     rng = random.Random(seed)
-    fleet = [Site(rng.choice((0, 0, 1)), rng.choice(CLIMATE_MIX),
+    fleet = [Site(rng.choice(INITIAL_STOCK_RUNGS), rng.choice(CLIMATE_MIX),
                   LEGACY_SITE_MW * rng.uniform(0.5, 2.0), True)
              for _ in range(n_legacy)]
 

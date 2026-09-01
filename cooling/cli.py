@@ -12,7 +12,7 @@ import sys
 
 from . import capacity, ladder
 from .fleet import simulate
-from .validation import DECLINED, validate
+from .validation import DECLINED, SEEDS as VALIDATION_SEEDS, validate
 
 
 def _cmd_ladder(args):
@@ -66,9 +66,13 @@ def _cmd_fleet(args):
     print(f"{'year':<6}{'survey avg':>12}{'energy-weighted':>17}")
     for year, (survey, weighted) in sim.items():
         print(f"{year:<6}{survey:>12.3f}{weighted:>17.3f}")
-    print("\nSurvey average stays in the high band while the energy-"
-          "weighted fleet improves: PUE progress ships in new builds "
-          "[2][3][7].")
+    print(f"\nSurvey average stays in the high band while the energy-"
+          f"weighted fleet improves: PUE progress ships in new builds "
+          f"[2][3][7].")
+    print(f"This is ONE draw (seed {args.seed}). `pue-ladder validate` "
+          f"reports means over {len(VALIDATION_SEEDS)} seeds, so its "
+          f"numbers will not match this table row for row — the spread "
+          f"across seeds is real and a single draw is not the finding.")
 
 
 def _cmd_validate(args):

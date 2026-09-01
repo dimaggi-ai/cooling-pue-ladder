@@ -48,7 +48,7 @@ the 2014 (~1.7, its calibrated starting point) and 2024 (~1.56) survey
 levels and the hyperscale fleet figures at once: PUE progress ships
 almost entirely in new builds; new builds are few by site count (what a
 survey averages) and huge by energy (what the grid sees). By 2024 the
-simulated survey average (~1.58) and energy-weighted average (~1.23)
+simulated survey average (~1.56) and energy-weighted average (~1.23)
 diverge by ~0.31-0.36 across seeds (mean 0.33 over 24). One
 honest caveat: the simulation reproduces the two survey *levels* and
 the divergence, not the observed shape between them — the published
@@ -97,14 +97,29 @@ Eleven points, three kinds, honestly separated (`pue-ladder validate`):
   seed, so a mean carried by a few lucky draws would still be caught.
 
 Two negative controls changed the registry rather than confirming it.
-The 2024 survey point had a +/-0.10 band that overlapped the 2014
-anchor's, so a fleet frozen at its all-legacy 1.645 start passed the
-"held-out prediction" — it is now +/-0.05, about the resolution the
-survey is published to, and deleting the adoption mechanism fails it.
+The 2024 survey point had a +/-0.10 band that reached up into the 2014
+anchor's, and the cost of that was measurable: freeze the fleet at its
+2014 all-legacy stock — no modernization at all for a decade — and it
+still cleared the "held-out prediction" on **19 of 24 seeds**. The point
+did fail on the seed this repo happened to ship, which is the
+uncomfortable part: the check was not distinguishing a decade of
+adoption from none, it was sampling. The band is now +/-0.035, chosen
+so that [1.525, 1.595] and the 2014 anchor's [1.60, 1.80] are disjoint;
+a frozen fleet now fails on every seed rather than most of them. The
+tolerance is not fitted to the result — the model misses the published
+figure by 0.0006, so anything from 0.001 to 0.04 gives the same verdict.
 The divergence point had a +/-0.15 band on an expectation of 0.30,
 admitting anything from 0.15 to 0.45; it is now +/-0.06. What survives
 is disclosed in DECLINED: both endpoints sit in their bands, but the
 model's decade decline is ~0.086 against a published ~0.14.
+
+A third control found a mutation that was not testing what it claimed.
+`fleet.py` does `from .ladder import pue`, binding its own name, so the
+"replace the whole PUE model" mutation — which patched only the
+registry's copy — left the entire simulated fleet running on the real
+ladder. It now patches both modules, and reddens nine points instead of
+five. A patch aimed at the wrong module does not fail loudly; it passes
+quietly, which is why each mutation now names every module it reaches.
 
 Synthetic data: the fleet simulation (seeded, deterministic,
 `cooling/fleet.py`) generates a decade of site-level fleets; tests

@@ -14,7 +14,7 @@ import unittest.mock as mock
 
 sys.path.insert(0, __file__.rsplit("/tests/", 1)[0])
 
-from cooling import ladder, validation        # noqa: E402
+from cooling import fleet, ladder, validation  # noqa: E402
 from cooling.fleet import simulate            # noqa: E402
 from cooling.ladder import RUNGS              # noqa: E402
 from cooling.validation import DECLINED, points, validate  # noqa: E402
@@ -24,11 +24,18 @@ def _red(*mutations):
     """Names of points that FAIL with (module, attribute, value) triples
     applied.
 
-    Which module to patch is not a detail. `validation` does
-    `from .ladder import pue, RUNGS`, which binds its own names, so patching
-    `ladder.pue` would never reach the registry. But `feasible_rungs` reads
-    `ladder.RUNGS` from inside `ladder`, so patching `validation.RUNGS`
-    would never reach IT. Mutations that need both say so explicitly.
+    Which module to patch is not a detail, and it cuts BOTH ways.
+    `validation` does `from .ladder import pue, RUNGS`, so it holds its own
+    names: patching `ladder.pue` would never reach the registry's calibrated
+    points. But `feasible_rungs` reads `ladder.RUNGS` from inside `ladder`,
+    so patching `validation.RUNGS` never reaches IT. `fleet` likewise does
+    `from .ladder import RUNGS, pue` and holds a third copy, so a mutation
+    meant to reach the simulated fleet must name `fleet`.
+
+    A patch aimed at the wrong module is not a failing test — it is a
+    silently passing one, because the point goes red for the reason the
+    mutation intended to remove. Each mutation below names every module it
+    has to reach and why.
     """
     with contextlib.ExitStack() as stack:
         for module, attr, value in mutations:
@@ -140,12 +147,29 @@ class TestBreakingTheModelTurnsTheRegistryRed(unittest.TestCase):
     def test_a_fleet_that_never_modernizes_is_noticed(self):
         # Freeze the fleet at its 2014 all-legacy stock. The calibrated 2014
         # point still passes; the held-out 2024 prediction must not.
+        #
+        # This is the mutation that earned the tolerance change. Against the
+        # single-seed registry this repo shipped before, at +/-0.10, the
+        # frozen fleet CLEARED the 2024 band on 19 of 24 seeds: a decade of
+        # modernization and none at all were the same answer on most draws.
+        # The band now stops below the 2014 anchor's, so it fails on all of
+        # them. The loop is the point — one seed cannot show that.
         def frozen(seed=0):
             sim = simulate(seed=seed)
             return {y: sim[2014] for y in sim}
         red = _red((validation, "simulate", frozen))
         self.assertIn("uptime-2024-survey-avg", red)
         self.assertNotIn("uptime-2014-survey-avg", red)
+
+    def test_the_frozen_fleet_fails_on_every_seed_not_just_the_lucky_ones(self):
+        # The claim above, checked rather than asserted once: no seed lets a
+        # never-modernized fleet through the 2024 band.
+        band = [p for p in points() if p.name == "uptime-2024-survey-avg"][0]
+        for seed in range(24):
+            frozen_2024 = simulate(seed=seed)[2014][0]
+            self.assertGreater(
+                abs(frozen_2024 - band.expected), band.tolerance,
+                f"seed {seed}: a frozen fleet passes the held-out point")
 
     def test_collapsing_the_two_fleets_is_noticed(self):
         # Make energy-weighted PUE equal the site-count average — i.e. claim
@@ -161,19 +185,36 @@ class TestBreakingTheModelTurnsTheRegistryRed(unittest.TestCase):
         # NVL72, and the ladder stops saying anything about density.
         rungs = tuple(dataclasses.replace(r, max_kw_per_rack=250.0)
                       for r in RUNGS)
-        # feasible_rungs() reads ladder.RUNGS from inside ladder, so this
-        # mutation has to reach the source module, not the registry's copy.
+        # feasible_rungs() reads ladder.RUNGS from inside ladder, so the
+        # `ladder` patch is the one that bites; validation's copy is patched
+        # only to keep the two consistent (it changes nothing here, since
+        # max_kw_per_rack does not enter pue()).
         red = _red((ladder, "RUNGS", rungs), (validation, "RUNGS", rungs))
         self.assertIn("nvl72-feasible-rungs", red)
         self.assertIn("dgx-h100-rack-needs-rear-door", red)
 
     def test_a_broken_pue_model_is_noticed(self):
         # Return a constant PUE for every rung and climate: the ladder is
-        # gone, and every calibrated fleet point should refuse it.
-        red = _red((validation, "pue", lambda *a, **k: 1.30))
-        for name in ("google-fleet-ttm-pue", "nrel-esif-pue",
-                     "legacy-stock-pue", "immersion-vendor-claim"):
+        # gone, and every point that reads a PUE should refuse it.
+        # fleet.py holds its own `pue` binding, so patching only
+        # validation's copy leaves the whole simulated fleet running on the
+        # real ladder — the survey points would then go red for the wrong
+        # reason, or not at all. Both modules, or this proves nothing.
+        red = _red((validation, "pue", lambda *a, **k: 1.30),
+                   (fleet, "pue", lambda *a, **k: 1.30))
+        for name in ("google-fleet-ttm-pue", "meta-fleet-avg-pue",
+                     "nrel-esif-pue", "legacy-stock-pue",
+                     "immersion-vendor-claim", "uptime-2014-survey-avg",
+                     "uptime-2024-survey-avg"):
             self.assertIn(name, red)
+
+    def test_a_fleet_that_starts_modern_is_noticed(self):
+        # The 2014 point is the simulation's calibrated initial condition.
+        # Start the stock on direct-to-chip instead of legacy air and that
+        # calibration is gone — if the point stays green it is pinning
+        # nothing. Patch `fleet`, which is where simulate() reads it.
+        red = _red((fleet, "INITIAL_STOCK_RUNGS", (3, 3, 3)))
+        self.assertIn("uptime-2014-survey-avg", red)
 
 
 if __name__ == "__main__":

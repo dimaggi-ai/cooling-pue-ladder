@@ -67,7 +67,7 @@ on `cooling.ladder.RUNGS`, deliberately easy to override and rerun.
 ## Reproduce
 
 ```
-make test        # 40 tests: invariants + the 10-point validation registry
+make test        # 51 tests: invariants + the 11-point validation registry
 make figures     # regenerates figures/ (needs matplotlib)
 ```
 
@@ -78,9 +78,13 @@ ones (the held-out 2024 survey level and the survey/energy-weighted
 divergence [2][7]) and *sanity* points (the density verdicts, which are
 the ladder's own structure computed for a published rack spec, so they
 cite nothing). It prints a DECLINED list of what it does NOT check, and
-the test suite breaks the model on purpose — freezing the fleet,
-collapsing the two averages, drifting a rung constant, raising every
-density ceiling — and requires named points to go red.
+the test suite breaks the model on purpose — freezing the fleet, starting
+it modern, collapsing the two averages, drifting a rung constant,
+replacing the PUE model outright, raising every density ceiling — and
+requires named points to go red, against a control proving the unmutated
+registry is green. Two of those controls changed published numbers rather
+than confirming them (see `docs/study.md`): the held-out 2024 band used
+to admit a fleet that never modernized on 19 of 24 seeds.
 
 ## Series — turning GPU capital into usable compute
 

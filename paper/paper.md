@@ -30,17 +30,22 @@ hyperscale fleets (~1.08-1.10) are reproduced *at once* by one
 adoption mechanism — efficiency ships in new builds, which are few by
 site count and large by energy — implying energy-weighted PUE, not survey
 averages, is the KPI a buyer should demand; our simulated 2024 gap is
-~0.32-0.35 across seeds. **(4)** Efficiency sells ride-through: the direct-to-chip rung AI
+~0.31-0.36 across seeds (mean 0.33 over 24). **(4)** Efficiency sells ride-through: the direct-to-chip rung AI
 requires today is the ladder's thermal-buffer minimum (~11 s at 132
 kW/rack, versus minutes for air rooms and immersion tanks), promoting
 cooling-loss to a first-class fault class for chaos programs. **(5)**
 Water is a priced axis: evaporative rejection buys free-cooling hours at
 ~1 L/kWh-class WUE; dry rejection returns the water for a modeled
-+0.015-0.08 PUE (+0.02-0.03 on direct-to-chip). A ten-point validation
-registry separates calibrated points (published fleet PUEs and the 2014
-survey initial condition) from emergent ones (the 2024 survey level, the
-divergence, the density verdicts), and the test suite fails if either
-kind drifts from the public record.
++0.015-0.08 PUE (+0.02-0.03 on direct-to-chip). An eleven-point
+validation registry separates three kinds: calibrated points (published
+fleet PUEs and the 2014 survey initial condition, which the model was
+tuned to and which therefore prove only that it has not drifted),
+emergent points (the 2024 survey level and the divergence — held-out
+figures nothing was fitted to), and sanity points (the density verdicts
+and the per-seed dispersion check, which pin the ladder's own structure
+and cite nothing). A negative-control suite breaks the model on purpose
+and requires named points to go red; the registry also prints what it
+does NOT check.
 
 ## 1. Model
 
@@ -61,10 +66,15 @@ direct-to-chip after), and retires legacy capacity at 2%/yr.
 Calibrated points: Google fleet ~1.09, Meta ~1.09, NREL ESIF 1.036,
 immersion vendor ~1.04, legacy stock ~1.9, and the Uptime 2014 survey
 average (~1.70) — the simulation's initial condition, so matching it is
-calibration, not evidence. Emergent points: the Uptime 2024 (~1.56)
-survey average and the ~0.32-0.35 survey/energy-weighted divergence
-from the fleet mechanism; NVL72 (2 feasible rungs) and DGX-H100-rack
-(3 feasible rungs) density verdicts from vendor specs. The simulation
+calibration, not evidence. Emergent points, both held-out: the Uptime
+2024 (~1.56) survey average and the ~0.31-0.36 survey/energy-weighted
+divergence from the fleet mechanism. Sanity points, which cite nothing:
+NVL72 (2 feasible rungs) and a DGX-H100 rack (3 feasible rungs) are
+verdicts the ladder returns for densities fed IN — the rack draws are
+inputs, not anchors, and no source publishes a count of feasible rungs,
+so a ref beside them would dress a structural consequence as a sourced
+result. The per-seed divergence count is likewise structural. The
+simulation
 reproduces the two survey levels and the divergence, not the
 flat-since-2020 shape of the published series. All sources are public:
 company-published figures quoted as facts, publicly released DOE-lab
