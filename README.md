@@ -19,7 +19,8 @@ worth [11]) behind an interconnection you already own, against a median
 ~5-year queue for new grid capacity [8]. **(3) The plateau is two
 fleets** — one adoption mechanism reproduces the 2014 (~1.7) and 2024
 (~1.56) survey levels and the hyperscale ~1.1 fleets at once;
-energy-weighted PUE runs ~0.32-0.35 below the survey number, so ask
+energy-weighted PUE runs ~0.31-0.36 below the survey number (mean 0.33
+over 24 seeds), so ask
 buyers' questions in energy-weighted terms. **(4) Efficiency sells ride-through** — the direct-to-chip rung AI
 needs today is the ladder's thermal-buffer *minimum* (~11 s at 132 kW),
 making cooling-loss a first-class chaos-testing fault. **(5) Water is a
@@ -73,9 +74,13 @@ make figures     # regenerates figures/ (needs matplotlib)
 Python 3.10+, stdlib only; `matplotlib` only for figures. The validation
 registry separates *calibrated* points (published fleet PUEs and the 2014
 initial condition the constants were tuned to [2-6][13]) from *emergent*
-ones (the 2024 survey level, the survey/energy-weighted divergence, and
-the density verdicts [2][10][11]), and the suite fails if either kind
-drifts.
+ones (the held-out 2024 survey level and the survey/energy-weighted
+divergence [2][7]) and *sanity* points (the density verdicts, which are
+the ladder's own structure computed for a published rack spec, so they
+cite nothing). It prints a DECLINED list of what it does NOT check, and
+the test suite breaks the model on purpose — freezing the fleet,
+collapsing the two averages, drifting a rung constant, raising every
+density ceiling — and requires named points to go red.
 
 ## Series — turning GPU capital into usable compute
 

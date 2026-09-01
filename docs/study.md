@@ -49,7 +49,7 @@ levels and the hyperscale fleet figures at once: PUE progress ships
 almost entirely in new builds; new builds are few by site count (what a
 survey averages) and huge by energy (what the grid sees). By 2024 the
 simulated survey average (~1.58) and energy-weighted average (~1.23)
-diverge by ~0.32-0.35 across seeds (0.35 at the default seed). One
+diverge by ~0.31-0.36 across seeds (mean 0.33 over 24). One
 honest caveat: the simulation reproduces the two survey *levels* and
 the divergence, not the observed shape between them — the published
 series falls to ~2020 and then flattens, while the simulated average
@@ -79,7 +79,7 @@ choose with numbers.
 
 ## 3. The validation project
 
-Ten points, two kinds, honestly separated (`pue-ladder validate`):
+Eleven points, three kinds, honestly separated (`pue-ladder validate`):
 
 - **Calibrated** (constants tuned to reproduce them — consistency, not
   prediction): Google fleet ~1.09 [3], Meta ~1.09 [4], NREL ESIF 1.036
@@ -88,8 +88,23 @@ Ten points, two kinds, honestly separated (`pue-ladder validate`):
   initial condition, so matching it is calibration, not evidence.
 - **Emergent** (not directly tuned): the 2024 Uptime survey average and
   the survey/energy-weighted divergence out of the fleet simulation
-  [2][7]; the NVL72 and DGX-H100 density verdicts out of the ceilings
-  and vendor specs [10][11].
+  [2][7]. Both are means over 24 seeds, not a single draw — the default
+  seed sat near the top of the spread on every fleet quantity.
+- **Sanity** (the model's own structure, citing nothing): the NVL72 and
+  DGX-H100 density verdicts. The rack draws are published specs [10][11],
+  but they are INPUTS — no source publishes a count of feasible rungs, so
+  these carry no ref. Plus a count that the two-fleets gap holds in every
+  seed, so a mean carried by a few lucky draws would still be caught.
+
+Two negative controls changed the registry rather than confirming it.
+The 2024 survey point had a +/-0.10 band that overlapped the 2014
+anchor's, so a fleet frozen at its all-legacy 1.645 start passed the
+"held-out prediction" — it is now +/-0.05, about the resolution the
+survey is published to, and deleting the adoption mechanism fails it.
+The divergence point had a +/-0.15 band on an expectation of 0.30,
+admitting anything from 0.15 to 0.45; it is now +/-0.06. What survives
+is disclosed in DECLINED: both endpoints sit in their bands, but the
+model's decade decline is ~0.086 against a published ~0.14.
 
 Synthetic data: the fleet simulation (seeded, deterministic,
 `cooling/fleet.py`) generates a decade of site-level fleets; tests

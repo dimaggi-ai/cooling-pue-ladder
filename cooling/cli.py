@@ -12,7 +12,7 @@ import sys
 
 from . import capacity, ladder
 from .fleet import simulate
-from .validation import validate
+from .validation import DECLINED, validate
 
 
 def _cmd_ladder(args):
@@ -79,9 +79,15 @@ def _cmd_validate(args):
         print(f"{p.name:<32}{p.kind:<12}{p.ref:<10}{p.expected:>9.3f}"
               f"{p.actual:>9.3f}{p.tolerance:>7.3f}  "
               f"{'PASS' if p.ok else 'FAIL'}")
+    print("\nNOT CHECKED HERE — a registry that prints only its passes is "
+          "a highlight reel:")
+    for what, why in DECLINED:
+        print(f"  - {what}: {why}")
     print(f"\n{'all points reproduced' if ok else 'VALIDATION FAILING'} "
           f"— calibrated points prove consistency, emergent points carry "
-          f"the findings (see docs/study.md)")
+          f"the findings, sanity points pin the ladder's own structure and "
+          f"cite nothing (see docs/study.md). tests/test_validation.py "
+          f"breaks the model on purpose and requires these points to fail.")
     return 0 if ok else 1
 
 
