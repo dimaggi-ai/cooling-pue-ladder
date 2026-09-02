@@ -9,3 +9,9 @@ jobs:
         with:
           python-version: "3.12"
       - run: python -m unittest discover -s tests -v
+      - name: The validation registry reproduces
+        run: python -c "import sys; from cooling.cli import main; sys.exit(main(['validate']))"
+      - name: Admission answers the two ends of the ladder
+        run: |
+          python -c "import sys; from cooling.cli import main; sys.exit(main(['admit','--density','132','--need-ride-through','30']))"
+          python -c "import sys; from cooling.cli import main; sys.exit(0 if main(['admit','--density','100','--halls','2']) == 1 else 1)"

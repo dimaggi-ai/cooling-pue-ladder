@@ -26,7 +26,8 @@ is evidence that the registry is easy, not that the model is right.
 import statistics
 from dataclasses import dataclass
 
-from .ladder import RUNGS, feasible_rungs, pue
+from .admission import ADMIT, STAGGER, Feeder, Hall, Start, admit, thinnest_rung
+from .ladder import RUNGS, feasible_rungs, pue, ride_through_s, rung
 from .fleet import simulate
 
 # Every fleet quantity below is a MEAN over these seeds, not a single draw.
@@ -96,6 +97,22 @@ class Point:
     @property
     def ok(self) -> bool:
         return abs(self.actual - self.expected) <= self.tolerance
+
+
+def _shared_feeder_stagger() -> float:
+    """1.0 if two starts that each admit alone stagger when they share plant."""
+    d2c = rung("direct-to-chip")
+    halls = {
+        h: Hall(hall_id=h, feeder_id="F1", rung=d2c, kw_per_rack=100.0,
+                racks_running=0, feed_mw=8.0)
+        for h in ("hall-a", "hall-b")
+    }
+    feeders = {"F1": Feeder("F1", limit_mw=40.0, max_step_mw=1.5)}
+    alone = [admit(Start("j", {h: 10}), halls, feeders).verdict
+             for h in halls]
+    together = admit(Start("j", {"hall-a": 10, "hall-b": 10}),
+                     halls, feeders).verdict
+    return 1.0 if all(v == ADMIT for v in alone) and together == STAGGER else 0.0
 
 
 def points():
@@ -196,6 +213,32 @@ def points():
               f"node figure is published [11], and the nodes-per-rack "
               f"packing is OUR assumption, which is why no ref sits in the "
               f"column. Input assumption, model verdict."),
+        # -- the admission model's structural points (sanity: own structure,
+        #    no external claim, ref "-") --
+        Point("thinnest-rung-is-direct-to-chip", "sanity", "-", 3.0, 0.0,
+              float(RUNGS.index(thinnest_rung(RUNGS))),
+              "F6 says the ladder's ride-through minimum is the rung AI "
+              "needs. RUNGS.index of that rung is 3, direct-to-chip. The "
+              "buffers are planning assumptions, so this is a check on the "
+              "sentence, not on any plant - hence no reference."),
+        Point("two-rungs-at-one-density-differ-27x", "sanity", "-",
+              26.7, 0.5,
+              ride_through_s(rung("immersion"), 132.0)
+              / ride_through_s(rung("direct-to-chip"), 132.0),
+              "Both rungs that cool NVL72 density are on the ladder, and "
+              "they differ in ride-through by the ratio of their buffers - "
+              "~27x - which does not depend on the density at all. The "
+              "density decides which rungs are available; the rung decides "
+              "how long the room holds. That is the whole argument for "
+              "asking ride-through at admission instead of inferring it "
+              "from density, and the cheaper of the two rungs is the thin "
+              "one ($900/kW against $1,400/kW)."),
+        Point("a-shared-feeder-turns-two-admits-into-a-stagger",
+              "sanity", "-", 1.0, 0.0, _shared_feeder_stagger(),
+              "A shared feeder changes the verdict on a start that is "
+              "otherwise identical: each half admits alone, the pair "
+              "staggers. If the step limit had been written as a second "
+              "ceiling the pair would deny, and this point would go red."),
     )
 
 

@@ -5,4 +5,4 @@ at a fixed utility feed, IT power is feed / PUE, so every point of PUE is
 capacity that never has to stand in an interconnection queue.
 """
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"

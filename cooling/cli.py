@@ -4,13 +4,15 @@
   pue-ladder gate --density 120         exit 1 if no rung fits (CI gate)
   pue-ladder capacity --feed-mw 10 --pue-from 1.5 --pue-to 1.2
   pue-ladder fleet                      the two-fleets plateau demo
+  pue-ladder admit --density 132 --need-ride-through 30
+                                        which rungs may take the start
   pue-ladder validate                   model vs public data points
 """
 
 import argparse
 import sys
 
-from . import capacity, ladder
+from . import admission, capacity, ladder
 from .fleet import simulate
 from .validation import DECLINED, SEEDS as VALIDATION_SEEDS, validate
 
@@ -75,12 +77,54 @@ def _cmd_fleet(args):
           f"across seeds is real and a single draw is not the finding.")
 
 
+def _cmd_admit(args):
+    """Ride-through and headroom asked at the moment a job starts."""
+    fits = ladder.feasible_rungs(args.density)
+    if not fits:
+        print(f"no rung on the ladder cools {args.density:.0f} kW/rack")
+        return 1
+    feeder = admission.Feeder("F1", args.feeder_limit_mw, args.feeder_step_mw)
+    hall_ids = tuple(f"hall-{chr(ord('a') + i)}" for i in range(args.halls))
+
+    print(f"{args.racks} rack(s) of {args.density:.0f} kW in {args.halls} "
+          f"hall(s) on one feeder, job needs "
+          f"{args.need_ride_through:.0f} s of ride-through\n")
+    print(f"{'rung':<16}{'ride-through':>14}{'step':>12}  verdict")
+    admitted = False
+    for r in fits:
+        halls = {h: admission.Hall(hall_id=h, feeder_id="F1", rung=r,
+                                   kw_per_rack=args.density,
+                                   racks_running=0, feed_mw=args.feed_mw,
+                                   climate=args.climate)
+                 for h in hall_ids}
+        start = admission.Start(
+            "job", {h: args.racks for h in hall_ids},
+            min_ride_through_s=args.need_ride_through)
+        out = admission.admit(start, halls, {"F1": feeder})
+        held = ladder.ride_through_s(r, args.density)
+        step = sum(out.steps_mw.values())
+        print(f"{r.name:<16}{held:>12.0f} s{step:>9.2f} MW  {out.verdict}")
+        for reason in out.reasons:
+            print(f"    {reason}")
+        if out.verdict == admission.STAGGER:
+            print("    order: " + " then ".join(out.stagger_order))
+        admitted = admitted or out.verdict == admission.ADMIT
+
+    print("\nRide-through and hall headroom are properties of the "
+          "destination; only the feeder step can be sequenced away.\n"
+          "Exit 1 means no rung admits the start as submitted — a STAGGER "
+          "counts as not-as-submitted, because the answer is 'later, in "
+          "pieces' rather than 'yes'.")
+    return 0 if admitted else 1
+
+
 def _cmd_validate(args):
     ps, ok = validate()
-    print(f"{'point':<32}{'kind':<12}{'ref':<10}{'expected':>9}"
+    width = max(len(p.name) for p in ps) + 2
+    print(f"{'point':<{width}}{'kind':<12}{'ref':<10}{'expected':>9}"
           f"{'actual':>9}{'tol':>7}  verdict")
     for p in ps:
-        print(f"{p.name:<32}{p.kind:<12}{p.ref:<10}{p.expected:>9.3f}"
+        print(f"{p.name:<{width}}{p.kind:<12}{p.ref:<10}{p.expected:>9.3f}"
               f"{p.actual:>9.3f}{p.tolerance:>7.3f}  "
               f"{'PASS' if p.ok else 'FAIL'}")
     print("\nNOT CHECKED HERE — a registry that prints only its passes is "
@@ -114,12 +158,25 @@ def main(argv=None):
     f = sub.add_parser("fleet")
     f.add_argument("--seed", type=int, default=7)
 
+    a = sub.add_parser("admit")
+    a.add_argument("--density", type=float, required=True,
+                   help="rack power of the start, kW")
+    a.add_argument("--need-ride-through", type=float, default=0.0,
+                   help="seconds of cooling loss the job must survive")
+    a.add_argument("--racks", type=int, default=10)
+    a.add_argument("--halls", type=int, default=1)
+    a.add_argument("--feed-mw", type=float, default=8.0)
+    a.add_argument("--feeder-limit-mw", type=float, default=40.0)
+    a.add_argument("--feeder-step-mw", type=float, default=1.5)
+    a.add_argument("--climate", choices=sorted(ladder.CLIMATES),
+                   default="temperate")
+
     sub.add_parser("validate")
 
     args = ap.parse_args(argv)
     fn = {"ladder": _cmd_ladder, "gate": _cmd_gate,
           "capacity": _cmd_capacity, "fleet": _cmd_fleet,
-          "validate": _cmd_validate}[args.cmd]
+          "admit": _cmd_admit, "validate": _cmd_validate}[args.cmd]
     try:
         return fn(args) or 0
     except ValueError as e:

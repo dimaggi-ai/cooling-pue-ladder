@@ -77,9 +77,28 @@ strictly dominated there, paying ~3× the water for nothing. The model
 prices the trade both ways so a site in a water-constrained region can
 choose with numbers.
 
+**F6 — Ride-through and headroom are admission fields, not facility
+trivia.** F4 makes cooling loss a first-class fault. The next step is to
+ask it at the moment a job starts, which `cooling/admission.py` does with
+three fields the model already had. Two of them are properties of the
+destination and no amount of sequencing helps: a job needing 30 s of
+ride-through is refused on a direct-to-chip room at 132 kW/rack (~11 s)
+and admitted on an immersion room at the *same density* (~303 s) — the
+ladder gate passes both, and only the buffer separates them. Hall
+headroom is the same kind of no: facility draw is IT power times PUE, and
+sequencing does not create megawatts. The third is different. Halls that
+share a feeder are not independent, and lighting two at once is one step
+onto shared plant — a limit distinct from the ceiling, because the load
+fits and the *transition* does not. That case is a **stagger**, the only
+verdict here that means "later, in pieces." Move the same two halls onto
+separate feeders and nothing else changes: the start admits. The order of
+checks is fixed and stated — destination first, feeder last — because
+telling an operator to stagger a start that was never going to fit is
+worse than saying no.
+
 ## 3. The validation project
 
-Eleven points, three kinds, honestly separated (`pue-ladder validate`):
+Fourteen points, three kinds, honestly separated (`pue-ladder validate`):
 
 - **Calibrated** (constants tuned to reproduce them — consistency, not
   prediction): Google fleet ~1.09 [3], Meta ~1.09 [4], NREL ESIF 1.036
@@ -121,6 +140,16 @@ ladder. It now patches both modules, and reddens nine points instead of
 five. A patch aimed at the wrong module does not fail loudly; it passes
 quietly, which is why each mutation now names every module it reaches.
 
+Three more sanity points arrived with the admission model, checking the
+prose against the code rather than against the world: that the ladder's
+ride-through minimum really is direct-to-chip, that at one density the
+two rungs which cool it differ in ride-through by ~27x (the buffer
+ratio — density decides which rungs are available, the rung decides how
+long the room holds), and that a shared feeder turns two starts which
+each admit alone into a stagger. The last one has real teeth: had the
+feeder step been written as a second ceiling, the pair would deny
+instead of stagger and the point would go red.
+
 Synthetic data: the fleet simulation (seeded, deterministic,
 `cooling/fleet.py`) generates a decade of site-level fleets; tests
 assert the survey levels and the divergence hold across seeds. All
@@ -148,5 +177,9 @@ direct-to-chip site will miss 1.06). Heat-reuse revenue, refrigerant
 regulations (two-phase fluids), and site water pricing are not modeled.
 The ~$10M/MW new-build anchor [14] is an order-of-magnitude planning
 figure — conservative, since AI-optimized builds are commonly quoted
-well above it. Every one of these is a named constant in the code:
+well above it. The admission model is arithmetic
+over declared inputs: it does not measure a plant, model an inrush
+transient, or know what a real feeder does with one — the step limit is
+an input, not a prediction, and the stagger order is deterministic
+rather than optimal. Every one of these is a named constant in the code:
 change it and rerun.
