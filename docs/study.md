@@ -27,19 +27,18 @@ while cold-climate PUE gets slightly *worse* — operators climb the lower
 ladder for kilowatts, not PUE. For current-generation AI, direct-to-chip
 is the entry ticket, and its PUE gain arrives as a side effect.
 
-**F2 — A PUE point is unqueued megawatts.** At a fixed feed, IT power =
+**F2 — PUE improvement frees IT-power headroom.** At a fixed feed, IT power =
 feed / PUE. Moving a 10 MW site from the survey-average 1.56 [2] to a
 direct-to-chip-class 1.2 frees ~1.9 MW of IT — roughly 1,500 H100s'
-worth [11] — behind an interconnection that already exists. The
-alternative, new grid capacity, waits a median ~5 years in the queue [8]
-while data centers head toward 6.7-12% of US electricity [7]. Priced
+worth [11] — behind an interconnection that already exists. This is
+derived power headroom, not deployed GPUs or a connection-time forecast. Priced
 with our planning-assumption retrofit costs, freed capacity lands at
 roughly $2-5.5M per freed MW depending on the starting PUE, destination
 rung, and climate — ~$2.7M for the flagship case above (survey-average
 1.56 to direct-to-chip, temperate) — a fraction of the ~$10M/MW
 new-build anchor [14], which is itself deliberately conservative for
-AI-optimized builds. Retrofits also ship on a construction schedule,
-not a queue schedule.
+AI-optimized builds. Construction, permitting and load-connection schedules
+are not modeled. The generation/storage queue comparison was withdrawn [8].
 
 **F3 — The plateau is two fleets.** The survey average has been stuck
 near ~1.55-1.6 for years [2] while hyperscalers publish ~1.08-1.10

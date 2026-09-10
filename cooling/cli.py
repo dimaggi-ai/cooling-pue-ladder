@@ -59,8 +59,7 @@ def _cmd_capacity(args):
     print(f"feed {args.feed_mw:.1f} MW: PUE {args.pue_from} -> "
           f"{args.pue_to} frees {freed:+.2f} MW of IT "
           f"(~{gpus:,} H100s' worth [11])")
-    print(f"the alternative — new grid capacity — waits a median "
-          f"~{capacity.QUEUE_YEARS:.0f} years in the queue [8]")
+    print("Derived IT-power headroom only; deployment and interconnection lead times are not modeled.")
 
 
 def _cmd_fleet(args):

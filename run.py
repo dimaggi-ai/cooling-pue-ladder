@@ -49,11 +49,11 @@ def fig_capacity():
         gpus = capacity.h100_equivalents(mw)
         ax.annotate(
             f"{p_from} → {p_to}: +{mw:.2f} MW ≈ {gpus:,} H100s [11]\n"
-            f"vs a median ~{capacity.QUEUE_YEARS:.0f}-yr grid queue [8]",
+            "Derived power headroom; deployment timing not modeled",
             xy=(p_to, capacity.it_mw(feed, p_to)), xytext=(1.85, 8.6),
             fontsize=9, color=FG,
             arrowprops=dict(arrowstyle="->", color=FG, lw=1))
-    ax.set_title("A PUE point is unqueued megawatts")
+    ax.set_title("IT-power headroom behind an existing utility feed")
     fig.tight_layout()
     fig.savefig("figures/capacity.png", dpi=150)
 

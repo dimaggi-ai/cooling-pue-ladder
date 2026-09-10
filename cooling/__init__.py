@@ -2,7 +2,7 @@
 
 Part of the DIMAGGI usable-capacity series: PUE sits upstream of `nominal` —
 at a fixed utility feed, IT power is feed / PUE, so every point of PUE is
-capacity that never has to stand in an interconnection queue.
+additional IT-power headroom behind the existing feed, subject to site constraints.
 """
 
 __version__ = "1.1.0"

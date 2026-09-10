@@ -31,9 +31,9 @@ labels it as such and it appears in "What a skeptic should attack."
 - **[7] US data center energy trajectory.** LBNL, "2024 United States Data
   Center Energy Usage Report": ~176 TWh in 2023 (~4.4% of US electricity),
   projected 6.7-12% of US electricity by 2028. The grid-stress context.
-- **[8] Interconnection queue.** LBNL, "Queued Up" series: median time
-  from interconnection request to commercial operation for projects
-  reaching operation in 2023 was ~5 years. Basis for QUEUE_YEARS.
+- **[8] Withdrawn timing comparison.** LBNL's [Queued Up 2024](https://eta.lbl.gov/publications/queued-2024-edition-characteristics)
+  concerns generation and storage interconnection, not data-center load
+  connections. Its five-year statistic is not a parameter in this model.
 - **[9] Thermal envelopes.** ASHRAE TC 9.9 datacom thermal guidelines:
   recommended inlet 18-27°C, allowable classes A1-A4. Bounds what "free
   cooling" can serve.

@@ -39,8 +39,7 @@ class TestRetrofitEconomics(unittest.TestCase):
     def test_retrofit_beats_new_build_per_mw(self):
         # A hot-humid site on dry-cooled contained air (model PUE ~1.33)
         # moving to direct-to-chip: dollars per freed MW must land under
-        # the ~$10M/MW new-build anchor [14] — and the queue for new
-        # grid capacity is ~5 years anyway [8].
+        # the ~$10M/MW new-build planning anchor [14]. No timing comparison.
         to = ladder.rung("direct-to-chip")
         mw, cost, per_mw = capacity.cost_per_freed_mw(
             10.0, 1.33, to, climate="hot-humid")

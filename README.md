@@ -13,10 +13,10 @@ and hyperscale ~1.1 fleets [2][3] are both true at once.
 **(1) Density, not efficiency, forces the ladder** — an NVL72-class
 ~120 kW rack [10] leaves only direct-to-chip and immersion standing; the
 rear-door rung buys 2.5× density while cold-climate PUE gets slightly
-*worse*. **(2) A PUE point is unqueued megawatts** — a 10 MW feed moved
+*worse*. **(2) PUE improvement frees IT-power headroom** — a 10 MW feed moved
 from the survey-average 1.56 [2] to 1.2 frees ~1.9 MW (~1,500 H100s'
-worth [11]) behind an interconnection you already own, against a median
-~5-year queue for new grid capacity [8]. **(3) The plateau is two
+worth [11]) behind an existing feed. This is derived power headroom, not
+deployed GPU capacity or a forecast of connection lead time. **(3) The plateau is two
 fleets** — one adoption mechanism reproduces the 2014 (~1.7) and 2024
 (~1.56) survey levels and the hyperscale ~1.1 fleets at once;
 energy-weighted PUE runs ~0.31-0.36 below the survey number (mean 0.33
@@ -44,7 +44,7 @@ all claims trace to [REFERENCES.md](REFERENCES.md).*
 
 ![The cooling ladder](figures/ladder.png)
 
-## A PUE point is unqueued megawatts
+## IT-power headroom behind an existing feed
 
 ![Capacity freed by PUE](figures/capacity.png)
 

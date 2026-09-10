@@ -1,9 +1,8 @@
-"""A PUE point is unqueued megawatts.
+"""IT power headroom behind an existing utility feed.
 
 At a fixed utility feed, IT power = feed / PUE. Improving PUE frees IT
-capacity behind an interconnection that already exists — against a median
-~5-year queue for new grid capacity [8], the ladder is the only megawatts
-an operator can buy without permission.
+capacity behind an interconnection that already exists. This arithmetic does
+not establish retrofit lead time, permitting, or data-center load connection time.
 """
 
 from .ladder import Rung, pue
@@ -18,11 +17,6 @@ GPUS_PER_NODE = 8
 # optimized builds are commonly cited higher, which only strengthens the
 # retrofit comparison. Planning anchor, not a quote.
 NEW_BUILD_USD_PER_MW = 10_000_000.0
-
-# Median time from interconnection request to commercial operation for
-# projects completed in 2023, ~5 years [8].
-QUEUE_YEARS = 5.0
-
 
 def it_mw(feed_mw: float, pue_value: float) -> float:
     """IT megawatts deliverable from a utility feed at a given PUE."""
@@ -56,9 +50,8 @@ def cost_per_freed_mw(feed_mw: float, pue_from: float, to: Rung,
     """(freed IT MW, retrofit $, $ per freed MW) for a rung transition.
 
     Freed capacity must be positive — a transition that frees nothing has
-    no cost-per-MW. Compare the $/MW against NEW_BUILD_USD_PER_MW and the
-    QUEUE_YEARS wait: the retrofit is typically a fraction of new-build
-    cost and ships on a construction schedule, not a queue schedule.
+    no cost-per-MW. NEW_BUILD_USD_PER_MW is a planning scenario, not a quote.
+    This comparison does not model permitting or construction lead time.
     """
     pue_to = pue(to, climate, water_mode)
     mw = freed_mw(feed_mw, pue_from, pue_to)

@@ -1,0 +1,720 @@
+{
+  "schema_version": "dimaggi-evidence/v1",
+  "coverage_scope": "Consequential headline claims, governing assumptions and model limits. Not a catalog of helper constants or proof that citations are correct.",
+  "sources": {
+    "cooling/ladder.py": {
+      "source_type": "model-assumption",
+      "location": "cooling/ladder.py",
+      "version_date": "2026-09-10 closure working tree; SHA-256 bound below",
+      "license_or_reuse": "Repository-authored analysis; third-party facts referenced, no new external raw data redistributed",
+      "scope": "Local authoritative definition or claim. External provenance retained in SOURCES/REFERENCES and inline citations; scenario choices are not empirical measurements."
+    },
+    "cooling/fleet.py": {
+      "source_type": "model-assumption",
+      "location": "cooling/fleet.py",
+      "version_date": "2026-09-10 closure working tree; SHA-256 bound below",
+      "license_or_reuse": "Repository-authored analysis; third-party facts referenced, no new external raw data redistributed",
+      "scope": "Local authoritative definition or claim. External provenance retained in SOURCES/REFERENCES and inline citations; scenario choices are not empirical measurements."
+    },
+    "cooling/capacity.py": {
+      "source_type": "model-assumption",
+      "location": "cooling/capacity.py",
+      "version_date": "2026-09-10 closure working tree; SHA-256 bound below",
+      "license_or_reuse": "Repository-authored analysis; third-party facts referenced, no new external raw data redistributed",
+      "scope": "Local authoritative definition or claim. External provenance retained in SOURCES/REFERENCES and inline citations; scenario choices are not empirical measurements."
+    },
+    "REFERENCES.md": {
+      "source_type": "model-assumption",
+      "location": "REFERENCES.md",
+      "version_date": "2026-09-10 closure working tree; SHA-256 bound below",
+      "license_or_reuse": "Repository-authored analysis; third-party facts referenced, no new external raw data redistributed",
+      "scope": "Local authoritative definition or claim. External provenance retained in SOURCES/REFERENCES and inline citations; scenario choices are not empirical measurements."
+    },
+    "README.md": {
+      "source_type": "model-assumption",
+      "location": "README.md",
+      "version_date": "2026-09-10 closure working tree; SHA-256 bound below",
+      "license_or_reuse": "Repository-authored analysis; third-party facts referenced, no new external raw data redistributed",
+      "scope": "Local authoritative definition or claim. External provenance retained in SOURCES/REFERENCES and inline citations; scenario choices are not empirical measurements."
+    }
+  },
+  "inputs": [
+    {
+      "name": "temperate free-cooling",
+      "unit": "fraction/year",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "Climate archetype, not weather observations",
+      "uncertainty": "Deliberately hypothetical/operator policy; not an observed universal bound",
+      "affected_outputs": [
+        "published conclusion",
+        "README.md"
+      ],
+      "value": 0.85,
+      "valid_bounds": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "reference feed",
+      "unit": "MW",
+      "evidence_class": "scenario",
+      "sources": [
+        "README.md"
+      ],
+      "transformation": "Fixed-feed comparison",
+      "uncertainty": "Deliberately hypothetical/operator policy; not an observed universal bound",
+      "affected_outputs": [
+        "published conclusion",
+        "README.md"
+      ],
+      "value": 10,
+      "valid_bounds": [
+        0,
+        1000
+      ]
+    },
+    {
+      "name": "survey PUE",
+      "unit": "PUE",
+      "evidence_class": "external-observed",
+      "sources": [
+        "README.md"
+      ],
+      "transformation": "Published survey anchor; sample mix differs from energy weighting",
+      "uncertainty": "Scope and qualifications stated in transformation and linked source; no unreported confidence interval",
+      "affected_outputs": [
+        "published conclusion",
+        "README.md"
+      ],
+      "value": 1.56,
+      "valid_bounds": [
+        1,
+        100
+      ]
+    },
+    {
+      "name": "legacy-air density",
+      "value": 10,
+      "unit": "kW/rack",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        1000
+      ]
+    },
+    {
+      "name": "legacy-air PUE floor",
+      "value": 1.45,
+      "unit": "PUE",
+      "evidence_class": "calibrated",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        1,
+        100
+      ]
+    },
+    {
+      "name": "legacy-air mechanical penalty",
+      "value": 0.45,
+      "unit": "PUE increment",
+      "evidence_class": "calibrated",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        10
+      ]
+    },
+    {
+      "name": "legacy-air liquid heat capture",
+      "value": 0,
+      "unit": "fraction",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "legacy-air thermal buffer",
+      "value": 2500,
+      "unit": "kJ/rack",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        250000
+      ]
+    },
+    {
+      "name": "legacy-air retrofit cost",
+      "value": 0,
+      "unit": "USD/kW",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "contained-air density",
+      "value": 20,
+      "unit": "kW/rack",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        2000
+      ]
+    },
+    {
+      "name": "contained-air PUE floor",
+      "value": 1.06,
+      "unit": "PUE",
+      "evidence_class": "calibrated",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        1,
+        100
+      ]
+    },
+    {
+      "name": "contained-air mechanical penalty",
+      "value": 0.35,
+      "unit": "PUE increment",
+      "evidence_class": "calibrated",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        10
+      ]
+    },
+    {
+      "name": "contained-air liquid heat capture",
+      "value": 0,
+      "unit": "fraction",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "contained-air thermal buffer",
+      "value": 2500,
+      "unit": "kJ/rack",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        250000
+      ]
+    },
+    {
+      "name": "contained-air retrofit cost",
+      "value": 250,
+      "unit": "USD/kW",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        25000
+      ]
+    },
+    {
+      "name": "rear-door-hx density",
+      "value": 50,
+      "unit": "kW/rack",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        5000
+      ]
+    },
+    {
+      "name": "rear-door-hx PUE floor",
+      "value": 1.09,
+      "unit": "PUE",
+      "evidence_class": "calibrated",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        1,
+        100
+      ]
+    },
+    {
+      "name": "rear-door-hx mechanical penalty",
+      "value": 0.22,
+      "unit": "PUE increment",
+      "evidence_class": "calibrated",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        10
+      ]
+    },
+    {
+      "name": "rear-door-hx liquid heat capture",
+      "value": 0.85,
+      "unit": "fraction",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "rear-door-hx thermal buffer",
+      "value": 1200,
+      "unit": "kJ/rack",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        120000
+      ]
+    },
+    {
+      "name": "rear-door-hx retrofit cost",
+      "value": 550,
+      "unit": "USD/kW",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        55000
+      ]
+    },
+    {
+      "name": "direct-to-chip density",
+      "value": 132,
+      "unit": "kW/rack",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        13200
+      ]
+    },
+    {
+      "name": "direct-to-chip PUE floor",
+      "value": 1.03,
+      "unit": "PUE",
+      "evidence_class": "calibrated",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        1,
+        100
+      ]
+    },
+    {
+      "name": "direct-to-chip mechanical penalty",
+      "value": 0.15,
+      "unit": "PUE increment",
+      "evidence_class": "calibrated",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        10
+      ]
+    },
+    {
+      "name": "direct-to-chip liquid heat capture",
+      "value": 0.75,
+      "unit": "fraction",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "direct-to-chip thermal buffer",
+      "value": 1500,
+      "unit": "kJ/rack",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        150000
+      ]
+    },
+    {
+      "name": "direct-to-chip retrofit cost",
+      "value": 900,
+      "unit": "USD/kW",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        90000
+      ]
+    },
+    {
+      "name": "immersion density",
+      "value": 200,
+      "unit": "kW/rack",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        20000
+      ]
+    },
+    {
+      "name": "immersion PUE floor",
+      "value": 1.02,
+      "unit": "PUE",
+      "evidence_class": "calibrated",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        1,
+        100
+      ]
+    },
+    {
+      "name": "immersion mechanical penalty",
+      "value": 0.1,
+      "unit": "PUE increment",
+      "evidence_class": "calibrated",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        10
+      ]
+    },
+    {
+      "name": "immersion liquid heat capture",
+      "value": 0.95,
+      "unit": "fraction",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "immersion thermal buffer",
+      "value": 40000,
+      "unit": "kJ/rack",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        4000000
+      ]
+    },
+    {
+      "name": "immersion retrofit cost",
+      "value": 1400,
+      "unit": "USD/kW",
+      "evidence_class": "scenario",
+      "sources": [
+        "cooling/ladder.py"
+      ],
+      "transformation": "PUE uses floor+(1-free-cooling)*penalty; buffer/power gives ride-through; density and retrofit are bounded planning choices",
+      "uncertainty": "Planning/reference model input; not independently measured here",
+      "affected_outputs": [
+        "published comparisons"
+      ],
+      "valid_bounds": [
+        0,
+        140000
+      ]
+    }
+  ],
+  "results": [
+    {
+      "name": "headroom",
+      "unit": "MW",
+      "evidence_class": "derived",
+      "sources": [
+        "README.md"
+      ],
+      "transformation": "10/1.2 - 10/1.56; not installed compute or construction time",
+      "uncertainty": "Scope and qualifications stated in transformation and linked source; no unreported confidence interval",
+      "affected_outputs": [
+        "published conclusion",
+        "README.md"
+      ],
+      "value": 1.923076923076923,
+      "valid_bounds": [
+        0,
+        192.3076923076923
+      ]
+    },
+    {
+      "name": "weighted PUE difference",
+      "unit": "claim",
+      "evidence_class": "simulated",
+      "sources": [
+        "README.md"
+      ],
+      "transformation": "Reported .31-.36 PUE difference is simulated adoption/weighting behavior, not a measured global correction",
+      "uncertainty": "Conditional model result; not production outcome or empirical confidence interval",
+      "affected_outputs": [
+        "published conclusion",
+        "README.md"
+      ],
+      "statement": "Reported .31-.36 PUE difference is simulated adoption/weighting behavior, not a measured global correction"
+    },
+    {
+      "name": "energy versus survey PUE difference",
+      "range": [
+        0.31,
+        0.36
+      ],
+      "range_basis": "Observed range of this model's 24 seed outputs, not an empirical interval",
+      "unit": "PUE increment",
+      "evidence_class": "simulated",
+      "sources": [
+        "README.md"
+      ],
+      "transformation": "Energy-weighted PUE subtracted from site-count-weighted PUE",
+      "uncertainty": "Synthetic fleet mix and adoption; not measured global correction",
+      "affected_outputs": [
+        "two-fleet conclusion"
+      ],
+      "valid_bounds": [
+        0,
+        10
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "cooling/ladder.py",
+      "sha256": "6646ce72338270dcb323dec915558e351b656e868660d85b3fa8d50be48a3786"
+    },
+    {
+      "path": "cooling/fleet.py",
+      "sha256": "b6cc3c63a9a61891ab2fb860e072cacb1c7097138aa5452332ecbf8d5aa40bed"
+    },
+    {
+      "path": "cooling/capacity.py",
+      "sha256": "628cbbdbf0dee23399c2d8f59d1fdf339da21c32f3b3bf28e24a889946742430"
+    },
+    {
+      "path": "REFERENCES.md",
+      "sha256": "8feae12bf179b823860e7e8b64fbea9d5e3375dd6cdab5e48065698c4c1a3e6a"
+    },
+    {
+      "path": "README.md",
+      "sha256": "581562f8341c7597db1e6b93b2bb875060774cfbbc841257fbab33990b09200f"
+    }
+  ]
+}
