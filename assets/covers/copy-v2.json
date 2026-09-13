@@ -1,0 +1,18 @@
+[
+  {
+    "repo": "cooling-pue-ladder",
+    "label": "AI INFRASTRUCTURE RESEARCH",
+    "title": [
+      "Cooling sets the",
+      "compute ceiling"
+    ],
+    "subtitle": [
+      "Models of rack density, power",
+      "headroom, and cooling-fault survival."
+    ],
+    "fontSize": 58,
+    "background": "illustration-v2.png",
+    "output": ".",
+    "source_readme_commit": "3622723afdf2ec189b52dcdd91cfebeaa96c632b"
+  }
+]
