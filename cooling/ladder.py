@@ -15,6 +15,8 @@ planning assumptions and are meant to be overridden.
 
 from dataclasses import dataclass
 
+from ._numeric import finite_number, identifier
+
 
 @dataclass(frozen=True)
 class Rung:
@@ -26,6 +28,27 @@ class Rung:
     heat_capture: float         # fraction of IT heat leaving in liquid
     thermal_buffer_kj: float    # usable thermal mass per rack on cooling loss
     retrofit_usd_per_kw: float  # capex to reach this rung, per IT kW cooled
+
+    def __post_init__(self):
+        self._validate()
+
+    def _validate(self):
+        identifier(self.name, "rung name")
+        finite_number(self.max_kw_per_rack, "max_kw_per_rack", positive=True)
+        finite_number(self.pue_floor, "pue_floor", minimum=1.0)
+        finite_number(self.mech_penalty, "mech_penalty", minimum=0.0)
+        if not isinstance(self.economizer_capable, bool):
+            raise ValueError("economizer_capable must be a boolean")
+        finite_number(self.heat_capture, "heat_capture", minimum=0.0,
+                      maximum=1.0)
+        finite_number(self.thermal_buffer_kj, "thermal_buffer_kj", minimum=0.0)
+        finite_number(self.retrofit_usd_per_kw, "retrofit_usd_per_kw", minimum=0.0)
+
+
+def _validate_rung(r):
+    if not isinstance(r, Rung):
+        raise ValueError("rung must be a Rung")
+    r._validate()
 
 
 # Density ceilings: ~10 kW/rack is the classic uncontained-air comfort zone,
@@ -75,9 +98,9 @@ WATER_MODES = {
 
 
 def effective_free_cooling(climate: str, water_mode: str) -> float:
-    if climate not in CLIMATES:
+    if not isinstance(climate, str) or climate not in CLIMATES:
         raise ValueError(f"unknown climate: {climate!r}")
-    if water_mode not in WATER_MODES:
+    if not isinstance(water_mode, str) or water_mode not in WATER_MODES:
         raise ValueError(f"unknown water mode: {water_mode!r}")
     shift, _ = WATER_MODES[water_mode]
     return min(1.0, max(0.0, CLIMATES[climate] + shift))
@@ -86,9 +109,11 @@ def effective_free_cooling(climate: str, water_mode: str) -> float:
 def pue(r: Rung, climate: str = "temperate",
         water_mode: str = "evaporative") -> float:
     """Mechanical PUE of a rung in a climate with a heat-rejection mode."""
+    _validate_rung(r)
     f = effective_free_cooling(climate, water_mode)
     f_eff = f if r.economizer_capable else 0.0
-    return r.pue_floor + (1.0 - f_eff) * r.mech_penalty
+    return finite_number(r.pue_floor + (1.0 - f_eff) * r.mech_penalty,
+                         "computed PUE", minimum=1.0)
 
 
 def wue(water_mode: str) -> float:
@@ -100,8 +125,7 @@ def wue(water_mode: str) -> float:
 
 def feasible_rungs(kw_per_rack: float):
     """Rungs whose density ceiling admits the target rack power."""
-    if kw_per_rack <= 0:
-        raise ValueError("rack power must be > 0")
+    finite_number(kw_per_rack, "rack power", positive=True)
     return tuple(r for r in RUNGS if kw_per_rack <= r.max_kw_per_rack)
 
 
@@ -113,8 +137,9 @@ def ride_through_s(r: Rung, kw_per_rack: float) -> float:
     room holds minutes, and an immersion tank's fluid mass buys minutes
     back. Buffers are planning assumptions, labeled in RUNGS.
     """
-    if kw_per_rack <= 0:
-        raise ValueError("rack power must be > 0")
+    _validate_rung(r)
+    finite_number(kw_per_rack, "rack power", positive=True)
     if kw_per_rack > r.max_kw_per_rack:
         raise ValueError(f"{r.name} cannot cool {kw_per_rack} kW/rack")
-    return r.thermal_buffer_kj / kw_per_rack
+    return finite_number(r.thermal_buffer_kj / kw_per_rack,
+                         "computed ride-through", minimum=0.0)

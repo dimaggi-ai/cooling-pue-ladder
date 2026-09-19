@@ -33,6 +33,7 @@ step limit is an input, not a prediction.
 from dataclasses import dataclass, field
 from typing import Dict, Mapping, Tuple
 
+from ._numeric import finite_number, identifier
 from .ladder import Rung, pue, ride_through_s
 
 ADMIT = "ADMIT"
@@ -47,22 +48,27 @@ class Hall:
     feeder_id: str
     rung: Rung
     kw_per_rack: float
-    racks_running: int
+    racks_running: int | float        # integral-valued rack counts only
     feed_mw: float                    # utility feed available to this hall
     climate: str = "temperate"
     water_mode: str = "evaporative"
 
     def __post_init__(self):
-        if self.kw_per_rack <= 0:
-            raise ValueError("rack power must be > 0")
+        self._validate()
+
+    def _validate(self):
+        identifier(self.hall_id, "hall_id")
+        identifier(self.feeder_id, "feeder_id")
+        # Validate custom rung fields and climate/mode before using the ceiling.
+        pue(self.rung, self.climate, self.water_mode)
+        finite_number(self.kw_per_rack, "rack power", positive=True)
         if self.kw_per_rack > self.rung.max_kw_per_rack:
             raise ValueError(
                 f"{self.hall_id}: {self.rung.name} cannot cool "
                 f"{self.kw_per_rack} kW/rack")
-        if self.racks_running < 0:
-            raise ValueError("racks_running must be >= 0")
-        if self.feed_mw <= 0:
-            raise ValueError("feed must be > 0")
+        finite_number(self.racks_running, "racks_running", minimum=0,
+                      integral=True)
+        finite_number(self.feed_mw, "feed", positive=True)
 
     @property
     def pue(self) -> float:
@@ -72,11 +78,15 @@ class Hall:
     def ride_through_s(self) -> float:
         return ride_through_s(self.rung, self.kw_per_rack)
 
-    def facility_mw(self, racks: int) -> float:
+    def facility_mw(self, racks: int | float) -> float:
         """Facility megawatts drawn by `racks` racks in this hall."""
-        if racks < 0:
-            raise ValueError("racks must be >= 0")
-        return racks * self.kw_per_rack / 1000.0 * self.pue
+        self._validate()
+        finite_number(racks, "racks", minimum=0, integral=True)
+        try:
+            mw = racks * self.kw_per_rack / 1000.0 * self.pue
+        except OverflowError as exc:
+            raise ValueError("computed facility MW must be finite") from exc
+        return finite_number(mw, "computed facility MW", minimum=0.0)
 
     @property
     def running_mw(self) -> float:
@@ -100,27 +110,34 @@ class Feeder:
     max_step_mw: float
 
     def __post_init__(self):
-        if self.limit_mw <= 0:
-            raise ValueError("feeder limit must be > 0")
-        if self.max_step_mw <= 0:
-            raise ValueError("feeder step limit must be > 0")
+        self._validate()
+
+    def _validate(self):
+        identifier(self.feeder_id, "feeder_id")
+        finite_number(self.limit_mw, "feeder limit", positive=True)
+        finite_number(self.max_step_mw, "feeder step limit", positive=True)
 
 
 @dataclass(frozen=True)
 class Start:
     """A job start, expressed as racks to light in named halls."""
     job_id: str
-    racks: Mapping[str, int]
+    racks: Mapping[str, int | float]
     min_ride_through_s: float = 0.0
 
     def __post_init__(self):
+        self._validate()
+
+    def _validate(self):
+        identifier(self.job_id, "job_id")
+        if not isinstance(self.racks, Mapping):
+            raise ValueError("racks must be a mapping of hall IDs to rack counts")
         if not self.racks:
             raise ValueError("a start must light at least one hall")
         for hall_id, n in self.racks.items():
-            if n <= 0:
-                raise ValueError(f"{hall_id}: racks must be > 0")
-        if self.min_ride_through_s < 0:
-            raise ValueError("min_ride_through_s must be >= 0")
+            identifier(hall_id, "hall_id")
+            finite_number(n, f"{hall_id}: racks", positive=True, integral=True)
+        finite_number(self.min_ride_through_s, "min_ride_through_s", minimum=0.0)
 
 
 @dataclass(frozen=True)
@@ -153,8 +170,37 @@ def admit(start: Start, halls: Mapping[str, Hall],
 
     ``running_mw`` optionally gives load already on each feeder from halls not
     in `halls` (other tenants, other rooms). Omitted, the feeder carries only
-    what the named halls are running.
+    what the named halls are running. Invalid inputs raise ``ValueError``;
+    DENY is reserved for valid inputs that fail a physical constraint.
     """
+    if not isinstance(start, Start):
+        raise ValueError("start must be a Start")
+    # Frozen dataclasses can still contain mutable rack mappings. Check the
+    # entire supplied boundary again before any early DENY or arithmetic.
+    start._validate()
+    if not isinstance(halls, Mapping) or not isinstance(feeders, Mapping):
+        raise ValueError("halls and feeders must be mappings")
+    for hall_id, hall in halls.items():
+        if not isinstance(hall, Hall):
+            raise ValueError(f"{hall_id!r}: expected a Hall")
+        hall._validate()
+        if hall_id != hall.hall_id:
+            raise ValueError(f"hall key {hall_id!r} does not match hall_id")
+    for feeder_id, feeder in feeders.items():
+        if not isinstance(feeder, Feeder):
+            raise ValueError(f"{feeder_id!r}: expected a Feeder")
+        feeder._validate()
+        if feeder_id != feeder.feeder_id:
+            raise ValueError(f"feeder key {feeder_id!r} does not match feeder_id")
+    if running_mw is not None:
+        if not isinstance(running_mw, Mapping):
+            raise ValueError("running_mw must be a mapping")
+        for feeder_id, load in running_mw.items():
+            identifier(feeder_id, "running_mw feeder_id")
+            if feeder_id not in feeders:
+                raise ValueError(f"running_mw names unknown feeder {feeder_id!r}")
+            finite_number(load, f"{feeder_id}: running_mw", minimum=0.0)
+
     reasons = []
     steps = {}
 
@@ -202,9 +248,13 @@ def admit(start: Start, halls: Mapping[str, Hall],
                       if h.feeder_id == feeder_id)
         if running_mw:
             carried += running_mw.get(feeder_id, 0.0)
-        step = sum(steps[h] for h in hall_ids)
+        finite_number(carried, f"{feeder_id}: computed running MW", minimum=0.0)
+        step = finite_number(sum(steps[h] for h in hall_ids),
+                             f"{feeder_id}: computed step MW", minimum=0.0)
+        total = finite_number(carried + step,
+                              f"{feeder_id}: computed total MW", minimum=0.0)
 
-        if carried + step > feeder.limit_mw + 1e-9:
+        if total > feeder.limit_mw + 1e-9:
             reasons.append(
                 f"{feeder_id}: carries {carried:.2f} MW, start adds "
                 f"{step:.2f} MW, ceiling is {feeder.limit_mw:.2f} MW")

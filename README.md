@@ -73,10 +73,17 @@ It exits non-zero when no rung admits the start as submitted. Every constant (de
 floors and penalties, retrofit $/kW, thermal buffers) is an exposed field
 on `cooling.ladder.RUNGS`, deliberately easy to override and rerun.
 
+Admission inputs require finite Python `int`/`float` values, excluding booleans;
+rack counts must be integral-valued (`2.0` is accepted). Invalid inputs raise
+`ValueError`, separately from a valid start receiving `DENY`. Custom rungs remain
+supported within their physical field bounds. See the
+[admission boundary correction](docs/2026-09-19-admission-input-correction.md)
+for the checked fields, compatibility details and verification limits.
+
 ## Reproduce
 
 ```
-make test        # 69 tests: invariants + the 14-point validation registry
+make test        # invariants, admission boundaries and the 14-point validation registry
 make figures     # regenerates figures/ (needs matplotlib)
 ```
 
