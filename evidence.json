@@ -5,7 +5,7 @@
     "cooling/ladder.py": {
       "source_type": "model-assumption",
       "location": "cooling/ladder.py",
-      "version_date": "2026-09-10 closure working tree; SHA-256 bound below",
+      "version_date": "2026-09-19 admission boundary correction; finite model outputs matched the previous pin",
       "license_or_reuse": "Repository-authored analysis; third-party facts referenced, no new external raw data redistributed",
       "scope": "Local authoritative definition or claim. External provenance retained in SOURCES/REFERENCES and inline citations; scenario choices are not empirical measurements."
     },
@@ -33,7 +33,7 @@
     "README.md": {
       "source_type": "model-assumption",
       "location": "README.md",
-      "version_date": "2026-09-10 closure working tree; SHA-256 bound below",
+      "version_date": "2026-09-19 admission boundary correction; finite model outputs matched the previous pin",
       "license_or_reuse": "Repository-authored analysis; third-party facts referenced, no new external raw data redistributed",
       "scope": "Local authoritative definition or claim. External provenance retained in SOURCES/REFERENCES and inline citations; scenario choices are not empirical measurements."
     }
@@ -698,7 +698,7 @@
   "artifacts": [
     {
       "path": "cooling/ladder.py",
-      "sha256": "6646ce72338270dcb323dec915558e351b656e868660d85b3fa8d50be48a3786"
+      "sha256": "9b8162add22b1e907fab4c4aa5e100888a0720e171ee4b637d1e0cf560e4ed50"
     },
     {
       "path": "cooling/fleet.py",
@@ -714,7 +714,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "581562f8341c7597db1e6b93b2bb875060774cfbbc841257fbab33990b09200f"
+      "sha256": "e895ed9061340862332e3eb09fc8286fe148d1e66b4e3dc8e457583f2f71cccd"
     }
   ]
 }
