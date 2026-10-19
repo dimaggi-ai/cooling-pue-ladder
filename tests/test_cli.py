@@ -69,6 +69,20 @@ class TestCli(unittest.TestCase):
                           "--pue-from", "1.5", "--pue-to", "1.2")
         self.assertEqual(code, 2)
 
+    def test_nonfinite_admission_inputs_exit_2(self):
+        for flag in ("--density", "--feed-mw", "--feeder-limit-mw",
+                     "--feeder-step-mw", "--need-ride-through"):
+            for value in ("nan", "inf", "-inf"):
+                with self.subTest(flag=flag, value=value):
+                    err = io.StringIO()
+                    with contextlib.redirect_stderr(err):
+                        code, out = run("admit", "--density", "100",
+                                        f"{flag}={value}")
+                    self.assertEqual(code, 2)
+                    self.assertIn("error:", err.getvalue())
+                    self.assertNotIn("ADMIT", out)
+                    self.assertNotIn("Traceback", err.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
